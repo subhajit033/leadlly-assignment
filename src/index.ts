@@ -26,13 +26,34 @@ const createTable = async () => {
   console.log(result);
 };
 
-const insertData = async (username: string, email: string, pass: string) => {
+const createAdd = async () => {
   try {
-    const insertQuery =
-      'INSERT INTO users (username, email, password) VALUES ($1, $2, $3);';
+    const result = await client.query(`
+            CREATE TABLE addresses (
+                id SERIAL PRIMARY KEY,
+                user_id INTEGER NOT NULL,
+                city VARCHAR(100) NOT NULL,
+                country VARCHAR(100) NOT NULL,
+                street VARCHAR(255) NOT NULL,
+                pincode VARCHAR(20),
+                created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+            );
+    `);
+    console.log('Address table craeted..');
+  } catch (e) {
+    console.log(e);
+  } finally {
+    client.end();
+  }
+};
 
-    const values = [username, email, pass];
-    const res = await client.query(insertQuery, values);
+const insertData = async () => {
+  try {
+    const insertQuery = `DROP users;`;
+
+    // const values = [username, email, pass];
+    const res = await client.query(insertQuery);
     console.log('inserted succesfully..');
   } catch (e) {
     console.log(e);
@@ -41,11 +62,14 @@ const insertData = async (username: string, email: string, pass: string) => {
   }
 };
 
-const getUser = async (email: string) => {
+const getUser = async () => {
   try {
-    const insertQuery = 'SELECT * FROM users WHERE email = $1';
-    const values = [email];
-    const res = await client.query(insertQuery, values);
+    const insertQuery = `SELECT users.id, users.username, users.email, addresses.city, addresses.country, addresses.street, addresses.pincode
+    FROM users
+    JOIN addresses ON addresses.user_id = users.id
+    WHERE users.id = '1';`;
+    // const values = [email];
+    const res = await client.query(insertQuery);
     if (res.rows.length > 0) {
       console.log(res.rows[0]);
     } else {
@@ -60,4 +84,5 @@ const getUser = async (email: string) => {
 };
 
 // createTable();
-getUser('kundu@gmail.com');
+// createAdd();
+insertData();
