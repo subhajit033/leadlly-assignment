@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import { PrismaClient } from '@prisma/client';
 import jwt, { JwtPayload } from 'jsonwebtoken';
 import dotenv from 'dotenv';
+import { promisify } from 'util';
 dotenv.config();
 
 const { userDeTail } = new PrismaClient();
@@ -50,26 +51,39 @@ const handleSignIn = async (req: Request, res: Response) => {
 };
 
 const isLoggedIn = async (req: Request, res: Response) => {
+  console.log(req.cookies);
   try {
     if (req?.cookies?.login) {
-      const userId = jwt.verify(
+      // const verifyJwt = promisify(jwt.verify)
+      const userId = (await jwt.verify(
         req.cookies.login,
         process.env.JWT_SEC!
-      ) as string;
+      )) as JwtPayload;
+      console.log(userId);
       const user = await userDeTail.findUnique({
         where: {
-          id: parseInt(userId),
+          id: userId.id,
         },
+      });
+      if (!user) {
+        return res.status(404).json({
+          status: false,
+          message: 'No user found with this id',
+        });
+      }
+      res.status(200).json({
+        status: true,
+        user,
       });
     } else {
       throw new Error('No cookies found at all');
     }
   } catch (error) {
-    res.status(404).json({
-      status: true,
+    res.status(400).json({
+      status: false,
       message: 'No cookies found',
     });
   }
 };
 
-export { handleSignIn };
+export { handleSignIn, isLoggedIn };
