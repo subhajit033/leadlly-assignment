@@ -12,7 +12,7 @@ const insertUser = async (
   const res = await userDeTail.create({
     data: {
       email,
-      password,
+      
       firstName,
       lastName,
     },
