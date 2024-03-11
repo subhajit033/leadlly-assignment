@@ -16,15 +16,16 @@ datasource db {
 model UserDeTail {
   id        Int    @id @default(autoincrement())
   email     String @unique
-  password  String
   firstName String
   lastName  String
+  todo      Todo[]
 }
 
 model Todo {
-  id          Int     @id @default(autoincrement())
-  title       String
-  done        Boolean @default(false)
-  description String?
-  userId Int
+  id Int @id @default(autoincrement())
+
+  done        Boolean    @default(false)
+  description String
+  userId      Int
+  user        UserDeTail @relation(fields: [userId], references: [id])
 }
