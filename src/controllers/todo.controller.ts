@@ -1,74 +1,71 @@
-
 import { PrismaClient } from '@prisma/client';
+import { Request, Response, NextFunction } from 'express';
 
 const { userDeTail, todo } = new PrismaClient();
 
-const insertUser = async (
-  email: string,
-  password: string,
-  firstName: string,
-  lastName: string
-) => {
-  const res = await userDeTail.create({
-    data: {
-      email,
-      
-      firstName,
-      lastName,
-    },
-  });
-
-  console.log(res);
-};
-
-interface UpdateData {
-  firstName: string;
-  lastName: string;
-  email: string;
+interface AuthReq extends Request {
+  userId?: string;
 }
 
-const deleteUser = async (email: string) => {
-  const res = await userDeTail.delete({
-    where: {
-      email,
-    },
-  });
-  console.log(res);
-};
-
-async function updateUser({ firstName, lastName, email }: UpdateData) {
-  const res = await userDeTail.update({
-    where: { email },
-    data: {
-      firstName,
-      lastName,
-    },
-  });
-  console.log(res);
-}
-
-const getUser = async (email: string) => {
-  const res = await userDeTail.findFirst({
-    where: { email },
-  });
-  console.log(res);
-};
-
-// updateUser( {
-//   email: 'subha@gmail.com',
-//   firstName: "new name",
-//   lastName: "singh"
-// })
-
-const deleteTable = async ()=>{
+const getTodos = async (req: AuthReq, res: Response) => {
   try {
-    await todo.deleteMany();
-    console.log('succes');
+    const todos = await todo.findMany({
+      where: {
+        userId: parseInt(req.userId!),
+      },
+      orderBy: {
+        createdAt: 'desc',
+      },
+    });
+    if (todos.length === 0) {
+      return res.status(404).json({
+        status: false,
+        message: 'No todos found',
+      });
+    }
+
+    res.status(200).json({
+      status: true,
+      todos,
+    });
   } catch (err) {
-    console.log(err);
+    res.status(400).json({
+      status: false,
+      message: 'Bad req',
+      err,
+    });
   }
-}
+};
 
-// insertUser('kundu@gmail.com', '654321', 'Bubai', 'Dhibar');
+const postTodos = async (req: AuthReq, res: Response) => {
+  try {
+    const { description } = req.body;
+    const postedTodo = await todo.create({
+      data: {
+        userId: parseInt(req.userId!),
+        description,
+      },
+    });
 
-deleteTable();
+    res.status(200).json({
+      status: true,
+      todo: postedTodo,
+    });
+  } catch (err) {
+    res.status(400).json({
+      status: false,
+      err,
+    });
+  }
+};
+
+const updateTodo = async (req: AuthReq, res: Response) => {
+  const updatedTodo = await todo.update({
+    where: {
+      userId: parseInt(req.userId!),
+    },
+    data: req.body,
+  });
+};
+
+export { getTodos, postTodos };

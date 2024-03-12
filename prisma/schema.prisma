@@ -22,10 +22,10 @@ model UserDeTail {
 }
 
 model Todo {
-  id Int @id @default(autoincrement())
-
+  id          Int        @id @default(autoincrement())
   done        Boolean    @default(false)
   description String
   userId      Int
   user        UserDeTail @relation(fields: [userId], references: [id])
+  createdAt   DateTime   @default(now())
 }
