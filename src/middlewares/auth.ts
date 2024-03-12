@@ -27,9 +27,9 @@ const protect = async (req: AuthReq, res: Response, next: NextFunction) => {
         },
       });
       if (!user) {
-        return res.status(404).json({
+        return res.status(403).json({
           status: false,
-          message: 'No user found with this id',
+          message: 'Forbidden access',
         });
       }
       

@@ -4,11 +4,18 @@ import authRouter from './routes/auth.route';
 import todoRouter from './routes/todo.route';
 import cookieParser from 'cookie-parser';
 import morgan from 'morgan';
+import cors from 'cors';
 
 const app: Express = express();
 if (process.env.NODE_ENV === 'dev') {
   app.use(morgan('dev'));
 }
+
+app.use(
+  cors({
+    origin: '*',
+  })
+);
 
 app.use(cookieParser());
 app.use(express.json());
