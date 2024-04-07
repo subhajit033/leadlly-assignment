@@ -1,9 +1,10 @@
 import { Router, Request, Response } from "express";
-import { handleSignIn, isLoggedIn } from "../controllers/auth.controller";
+import { handleSignIn, isLoggedIn, login, updateDetails } from "../controllers/auth.controller";
+
 
 const router = Router();
 
 router.post('/signup', handleSignIn);
-router.get('/login', isLoggedIn);
+router.post('/login', login);
 
 export default router;

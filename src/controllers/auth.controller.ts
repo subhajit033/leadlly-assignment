@@ -7,7 +7,7 @@ dotenv.config();
 
 const { user } = new PrismaClient();
 
-const craeteAndSendToken = (userId: string, res: Response, user: Object) => {
+const craeteAndSendToken = (userId: string, res: Response) => {
   const sec: string = process.env.JWT_SEC || 'hi I am Subhajit';
   const token = jwt.sign({ id: userId }, sec, {
     expiresIn: process.env.JWT_EXPIRE_TIME || '1d',
@@ -26,12 +26,17 @@ const craeteAndSendToken = (userId: string, res: Response, user: Object) => {
   res.status(200).json({
     status: true,
     token,
-    user,
   });
 };
 
 const handleSignIn = async (req: Request, res: Response) => {
   const { email, name, password } = req.body;
+  if (!email || !name || !password) {
+    return res.status(400).json({
+      status: false,
+      message: 'Provide the reqires details',
+    });
+  }
   const hashedPassword = await bcrypt.hash(password, 10);
 
   try {
@@ -42,7 +47,7 @@ const handleSignIn = async (req: Request, res: Response) => {
         password: hashedPassword,
       },
     });
-    craeteAndSendToken(userData.id, res, user);
+    craeteAndSendToken(userData.id, res);
   } catch (err) {
     res.status(400).json({
       status: false,
@@ -52,7 +57,7 @@ const handleSignIn = async (req: Request, res: Response) => {
 };
 
 const login = async (req: Request, res: Response) => {
-  const { email, password } = req.body();
+  const { email, password } = req.body;
   if (!email || !password) {
     return res.status(400).json({
       status: false,
@@ -72,7 +77,7 @@ const login = async (req: Request, res: Response) => {
         message: 'Incorrect Email or Password',
       });
     }
-    craeteAndSendToken(userDetail.id, res, userDetail);
+    craeteAndSendToken(userDetail.id, res);
   } catch (e: any) {
     res.status(400).json({
       status: false,
@@ -171,4 +176,4 @@ const isLoggedIn = async (req: Request, res: Response) => {
   }
 };
 
-export { handleSignIn, isLoggedIn };
+export { handleSignIn, isLoggedIn, login, updateDetails };
