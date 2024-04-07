@@ -5,7 +5,7 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
-const { userDeTail } = new PrismaClient();
+const { user } = new PrismaClient();
 
 interface AuthReq extends Request {
   userId?: number;
@@ -21,20 +21,19 @@ const protect = async (req: AuthReq, res: Response, next: NextFunction) => {
         process.env.JWT_SEC!
       )) as JwtPayload;
       console.log(userId);
-      const user = await userDeTail.findUnique({
+      const userDetail = await user.findUnique({
         where: {
           id: userId.id,
         },
       });
-      if (!user) {
+      if (!userDetail) {
         return res.status(403).json({
           status: false,
           message: 'Forbidden access',
         });
       }
-      
+
       req.userId = userId.id;
-      
     } else {
       throw new Error('No cookies found at all');
     }
@@ -47,4 +46,4 @@ const protect = async (req: AuthReq, res: Response, next: NextFunction) => {
   next();
 };
 
-export {protect}
+export { protect };

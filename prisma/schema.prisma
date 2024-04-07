@@ -9,23 +9,21 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "mongodb"
   url      = env("DATABASE_URL")
 }
 
-model UserDeTail {
-  id        Int    @id @default(autoincrement())
-  email     String @unique
-  firstName String
-  lastName  String
-  todo      Todo[]
+model User {
+  id       String  @id @default(auto()) @map("_id") @db.ObjectId
+  email    String  @unique
+  name     String?
+  password String
 }
 
-model Todo {
-  id          Int        @id @default(autoincrement())
-  done        Boolean    @default(false)
-  description String
-  userId      Int
-  user        UserDeTail @relation(fields: [userId], references: [id])
-  createdAt   DateTime   @default(now())
+model Product {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  name        String
+  description String?
+  image_url   String?
+  createdAt   DateTime @default(now())
 }
