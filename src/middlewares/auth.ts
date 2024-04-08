@@ -8,7 +8,7 @@ dotenv.config();
 const { user } = new PrismaClient();
 
 interface AuthReq extends Request {
-  userId?: number;
+  userId?: string;
 }
 
 const protect = async (req: AuthReq, res: Response, next: NextFunction) => {
@@ -26,6 +26,8 @@ const protect = async (req: AuthReq, res: Response, next: NextFunction) => {
           id: userId.id,
         },
       });
+
+      console.log('userDetail');
       if (!userDetail) {
         return res.status(403).json({
           status: false,

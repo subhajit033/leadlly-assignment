@@ -7,6 +7,10 @@ dotenv.config();
 
 const { user } = new PrismaClient();
 
+interface AuthReq extends Request {
+  userId?: string;
+}
+
 const craeteAndSendToken = (userId: string, res: Response) => {
   const sec: string = process.env.JWT_SEC || 'hi I am Subhajit';
   const token = jwt.sign({ id: userId }, sec, {
@@ -94,7 +98,7 @@ const filterObj = (obj: { [key: string]: any }, ...allowedField: string[]) => {
   return newObj;
 };
 
-const updateDetails = async (req: Request, res: Response) => {
+const updateDetails = async (req: AuthReq, res: Response) => {
   //we are not udating password by this method for security reason
   const filteredData: { [key: string]: any } = filterObj(
     req.body,
@@ -102,22 +106,17 @@ const updateDetails = async (req: Request, res: Response) => {
     'email'
   );
 
-  if (!req?.cookies?.login) {
-    return res.status(403).json({
-      status: false,
-      message: 'You need to be logged in to update data',
-    });
-  }
-
   try {
-    const userId = (await jwt.verify(
-      req.cookies.login,
-      process.env.JWT_SEC!
-    )) as JwtPayload;
+    const userId = req.userId;
     console.log(userId);
-    const userDetail = await user.findUnique({
+    const userDetail = await user.update({
       where: {
-        id: userId.id,
+        id: userId!,
+      },
+      data: filteredData,
+      select: {
+        name: true,
+        email: true,
       },
     });
     if (!userDetail) {
@@ -126,11 +125,10 @@ const updateDetails = async (req: Request, res: Response) => {
         message: 'Forbidden access',
       });
     }
-    const UpdatedData = await user.update({
-      where: {
-        email: filteredData.email,
-      },
-      data: filteredData,
+
+    res.status(200).json({
+      status: true,
+      user: userDetail,
     });
   } catch (e: any) {
     res.status(400).json({

@@ -1,7 +1,7 @@
 // src/index.js
 import express, { Express, Request, Response } from 'express';
 import authRouter from './routes/auth.route';
-import todoRouter from './routes/todo.route';
+import todoRouter from './routes/product.route';
 import cookieParser from 'cookie-parser';
 import morgan from 'morgan';
 import cors from 'cors';
@@ -22,7 +22,7 @@ app.use(express.json());
 const port = process.env.PORT || 3000;
 
 app.use('/api/v1/users', authRouter);
-app.use('/api/v1/todos', todoRouter);
+app.use('/api/v1/products', todoRouter);
 
 app.get('/', (req: Request, res: Response) => {
   res.send('Express + TypeScript Server');
