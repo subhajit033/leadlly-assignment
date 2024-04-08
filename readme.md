@@ -7,3 +7,7 @@
 5.Run `npx prisma db push` to generate prisma client (model according to mongodb)
 6. Run `npm start` to start the development server.
 7. Try the routes on postman.
+
+## Using docker
+1.Start Docker Engine First
+2.Run `docker run -p 3000:3000 subhajit033/leadlly`
