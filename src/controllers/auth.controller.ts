@@ -138,6 +138,19 @@ const updateDetails = async (req: AuthReq, res: Response) => {
   }
 };
 
+const logout = (req: Request, res: Response) => {
+  const cookieOptions = {
+    //in expires is saved as date in config file so we have to convert it into a mili second
+    expires: new Date(Date.now() + 60 * 1000),
+
+    httpOnly: true,
+  };
+  res.cookie('login', null, cookieOptions);
+  res.status(200).json({
+    status: true,
+  });
+};
+
 const isLoggedIn = async (req: Request, res: Response) => {
   console.log(req.cookies);
   try {
@@ -174,4 +187,4 @@ const isLoggedIn = async (req: Request, res: Response) => {
   }
 };
 
-export { handleSignIn, isLoggedIn, login, updateDetails };
+export { handleSignIn, isLoggedIn, login, updateDetails, logout };

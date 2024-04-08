@@ -31,6 +31,12 @@ const getPdts = async (req: AuthReq, res: Response) => {
 };
 
 const createProduct = async (req: AuthReq, res: Response) => {
+  if(!req.body.name){
+    return res.status(404).json({
+      status: false,
+      message : 'Please provide name of the product'
+    })
+  }
   try {
     const pdtDetail = { ...req.body, userId: req.userId! };
     const newpdt = await product.create({

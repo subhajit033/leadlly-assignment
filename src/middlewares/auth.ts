@@ -12,7 +12,13 @@ interface AuthReq extends Request {
 }
 
 const protect = async (req: AuthReq, res: Response, next: NextFunction) => {
-  console.log(req.cookies);
+  if (!req?.cookies?.login) {
+    return res.status(403).json({
+      status: false,
+      message: 'You need to be logged in to perform this in action',
+    });
+  }
+
   try {
     if (req?.cookies?.login) {
       //we want explicitly return of jwtpayload
